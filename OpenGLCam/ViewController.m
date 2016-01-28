@@ -93,11 +93,11 @@
     CIFilter *crystallize = [CIFilter filterWithName:@"CIPhotoEffectChrome" keysAndValues:kCIInputImageKey, image, nil];
     [crystallize setValue:image forKey:kCIInputImageKey];
     [_glView bindDrawable];
-    [_ciContext drawImage:crystallize.outputImage inRect:image.extent fromRect:image.extent];
+    [_ciContext drawImage:crystallize.outputImage inRect:CGRectMake(0, 0, _glView.drawableWidth, _glView.drawableWidth/480.f*640.f) fromRect:image.extent];
     [_glView display];
-//    CVPixelBufferLockBaseAddress(pixelBuffer, 0);
+    CVPixelBufferLockBaseAddress(pixelBuffer, 0);
 //    uint8_t *baseAddress = CVPixelBufferGetBaseAddress(pixelBuffer);
-//    
+//
 //    
 //    CVPixelBufferUnlockBaseAddress(pixelBuffer, 0);
     self.time = -[start timeIntervalSinceNow]*1000;
