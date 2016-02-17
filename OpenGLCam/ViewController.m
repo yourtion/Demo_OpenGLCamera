@@ -88,14 +88,29 @@
 -(void)captureOutput:(AVCaptureOutput *)captureOutput didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer fromConnection:(AVCaptureConnection *)connection {
     NSDate *start = [NSDate date];
     connection.videoOrientation = AVCaptureVideoOrientationPortrait;
+    connection.videoMirrored = YES;
     CVPixelBufferRef pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer);
     CIImage *image = [CIImage imageWithCVPixelBuffer:pixelBuffer];
-    CIFilter *crystallize = [CIFilter filterWithName:@"CIPhotoEffectChrome" keysAndValues:kCIInputImageKey, image, nil];
-    [crystallize setValue:image forKey:kCIInputImageKey];
+    CIFilter *filter = [CIFilter filterWithName:@"CIPhotoEffectChrome" keysAndValues:kCIInputImageKey, image, nil];
+    
+//    NSDictionary *options = [NSDictionary dictionaryWithObject:@"NO" forKey:kCIImageAutoAdjustRedEye];
+//    NSArray *adjustments = [image autoAdjustmentFiltersWithOptions:options];
+//    
+//    for (CIFilter *filter in adjustments) {
+//        [filter setValue:image forKey:kCIInputImageKey];
+//        image = filter.outputImage;
+//    }
+ 
+    [filter setValue:image forKey:kCIInputImageKey];
     [_glView bindDrawable];
-    [_ciContext drawImage:crystallize.outputImage inRect:CGRectMake(0, 0, _glView.drawableWidth, _glView.drawableWidth/480.f*640.f) fromRect:image.extent];
+    CGFloat width = _glView.drawableHeight/640.f*480.f;
+    CGFloat height = _glView.drawableHeight;
+    CGFloat x = (_glView.drawableWidth - width) /2;
+    
+    
+    [_ciContext drawImage:filter.outputImage inRect:CGRectMake(x, 0, width, height) fromRect:CGRectMake(0, 0, 480, 640)];
     [_glView display];
-    CVPixelBufferLockBaseAddress(pixelBuffer, 0);
+//    CVPixelBufferLockBaseAddress(pixelBuffer, 0);
 //    uint8_t *baseAddress = CVPixelBufferGetBaseAddress(pixelBuffer);
 //
 //    
