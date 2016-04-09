@@ -14,6 +14,7 @@
 @interface ViewController ()<AVCaptureVideoDataOutputSampleBufferDelegate>
 @property (nonatomic , strong) AVCaptureVideoPreviewLayer *captureVideoPreviewLayer ;
 @property (nonatomic) int time;
+@property (nonatomic , strong) dispatch_queue_t sessionQueue;
 @end
 
 @implementation ViewController{
@@ -62,7 +63,8 @@
     [dataOutput setAlwaysDiscardsLateVideoFrames:YES];
     [dataOutput setVideoSettings:[NSDictionary dictionaryWithObject:[NSNumber numberWithInt:kCVPixelFormatType_32BGRA] forKey:(id)kCVPixelBufferPixelFormatTypeKey]];
     
-    [dataOutput setSampleBufferDelegate:self queue:dispatch_queue_create("Video", DISPATCH_QUEUE_SERIAL)];
+    self.sessionQueue = dispatch_queue_create("Video", DISPATCH_QUEUE_SERIAL);
+    [dataOutput setSampleBufferDelegate:self queue:self.sessionQueue];
     
     
     if ([session canAddInput:input]) {
@@ -83,7 +85,9 @@
     
     
     
+    dispatch_async(self.sessionQueue, ^{
     [session startRunning];
+    });
 }
 -(void)captureOutput:(AVCaptureOutput *)captureOutput didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer fromConnection:(AVCaptureConnection *)connection {
     NSDate *start = [NSDate date];
